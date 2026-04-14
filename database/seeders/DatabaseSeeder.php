@@ -13,6 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(LearningResourceSeeder::class);
+        // 1. Create the Admin User with the is_admin flag set to true
+        \App\Models\User::factory()->create([
+            'name' => 'aa',
+            'email' => 'aa@g.com',
+            'password' => bcrypt('pwd'),
+            'is_admin' => true,
+        ]);
+
+        $this->call([
+            LearningResourceSeeder::class,
+            ReportSeeder::class,
+        ]);
     }
 }

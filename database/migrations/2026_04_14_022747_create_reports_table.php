@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete(); // The user making the report
-            $table->foreignId('learning_resource_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('review_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete(); 
+            $table->morphs('reportable'); 
             $table->string('reason');
-            $table->string('status')->default('pending'); // For Son's admin dashboard
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }
