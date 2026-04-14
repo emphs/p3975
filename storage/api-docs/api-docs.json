@@ -36,6 +36,11 @@
                                                 "type": "string",
                                                 "example": "Advanced Calculus Video"
                                             },
+                                            "reviews_avg_rating": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 4.5
+                                            },
                                             "ai_summary": {
                                                 "type": "string",
                                                 "example": "Most users found this highly comprehensive."
@@ -89,6 +94,30 @@
                         "sanctum": []
                     }
                 ]
+            }
+        },
+        "/api/resources/{id}": {
+            "get": {
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Get a specific learning resource",
+                "operationId": "a15c5328f3e07ab3950a6ee8cebdbc08",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
             }
         },
         "/api/reviews/{review_id}/like": {
