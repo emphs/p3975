@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('learning_resources', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('url_or_isbn'); // Handles both YouTube links and book ISBNs
-            $table->text('ai_summary')->nullable(); // Abdullah's AI model will fill this in later
+            $table->string('type')->default('youtube'); // 'youtube' or 'textbook'
+            $table->string('identifier'); // The YouTube URL or the ISBN
+            $table->string('title')->nullable(); // Nullable because we might fetch it automatically
+            $table->string('author')->nullable(); // Only used for textbooks
+            $table->string('cover_image_url')->nullable(); // Only used for textbooks
+            $table->text('ai_summary')->nullable();
             $table->timestamps();
         });
     }

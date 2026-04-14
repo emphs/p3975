@@ -58,7 +58,7 @@
                 "tags": [
                     "Resources"
                 ],
-                "summary": "Submit a new learning resource",
+                "summary": "Submit a new learning resource (YouTube or Textbook ISBN)",
                 "operationId": "e889331b6f6c163c83371a691ee6b787",
                 "requestBody": {
                     "required": true,
@@ -66,17 +66,23 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "title",
-                                    "url_or_isbn"
+                                    "type",
+                                    "identifier"
                                 ],
                                 "properties": {
+                                    "type": {
+                                        "description": "Must be 'youtube' or 'textbook'",
+                                        "type": "string",
+                                        "example": "textbook"
+                                    },
+                                    "identifier": {
+                                        "description": "YouTube URL or Textbook ISBN",
+                                        "type": "string",
+                                        "example": "0201896834"
+                                    },
                                     "title": {
                                         "type": "string",
-                                        "example": "Intro to React"
-                                    },
-                                    "url_or_isbn": {
-                                        "type": "string",
-                                        "example": "https://youtube.com/watch?v=123"
+                                        "example": "Optional manual title for YouTube videos"
                                     }
                                 },
                                 "type": "object"
@@ -85,8 +91,8 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Resource created successfully"
+                    "200": {
+                        "description": "Resource retrieved or created successfully"
                     }
                 },
                 "security": [

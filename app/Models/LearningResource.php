@@ -9,7 +9,14 @@ class LearningResource extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'url_or_isbn', 'ai_summary'];
+    protected $fillable = [
+        'type',
+        'identifier',
+        'title',
+        'author',
+        'cover_image_url',
+        'ai_summary'
+    ];
 
     public function reviews()
     {
