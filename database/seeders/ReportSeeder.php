@@ -12,39 +12,55 @@ class ReportSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Ensure we have at least one user to act as the reporter
-        $reporter = User::first() ?? User::factory()->create();
+        $reporter = \App\Models\User::first() ?? \App\Models\User::factory()->create();
 
-        // 2. Create a fake Learning Resource and report it
-        // Create a fake Learning Resource using the correct column names
-        $resource = LearningResource::create([
-            'title' => 'Dodgy Calculus Guide',
-            'url_or_isbn' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-            'ai_summary' => 'This resource is flagged for manual review.'
+        // --- SAMPLE 1: A Malicious Resource ---
+        $res1 = \App\Models\LearningResource::create([
+            'title' => 'FREE CHEAT CODES 2026',
+            'type' => 'youtube',
+            'identifier' => 'https://youtube.com/bad-link', // Changed from url_or_isbn
+            'ai_summary' => 'Suspicious link detected.'
         ]);
 
-        Report::create([
+        \App\Models\Report::create([
             'user_id' => $reporter->id,
-            'reason' => 'This link leads to malware, not a tutorial.',
-            'status' => 'pending',
-            'reportable_id' => $resource->id,
-            'reportable_type' => LearningResource::class,
+            'reason' => 'This is a phishing link.',
+            'reportable_id' => $res1->id,
+            'reportable_type' => \App\Models\LearningResource::class,
         ]);
 
-        // 3. Create a fake Review and report it
-        $review = Review::create([
+        // --- SAMPLE 2: An Off-Topic Resource ---
+        $res2 = \App\Models\LearningResource::create([
+            'title' => 'How to Boil Eggs',
+            'type' => 'textbook',
+            'identifier' => '978-3-16-148410-0', // ISBN example
+            'author' => 'Chef Quack',
+            'ai_summary' => 'Unrelated to programming.'
+        ]);
+
+        \App\Models\Report::create([
             'user_id' => $reporter->id,
-            'learning_resource_id' => $resource->id,
+            'reason' => 'Off-topic content.',
+            'reportable_id' => $res2->id,
+            'reportable_type' => \App\Models\LearningResource::class,
+        ]);
+
+        // --- SAMPLE 3: A Toxic Review ---
+        // We need a resource for the review to belong to first
+        $validRes = \App\Models\LearningResource::first();
+
+        $badReview = \App\Models\Review::create([
+            'user_id' => $reporter->id,
+            'learning_resource_id' => $validRes->id,
             'rating' => 1,
-            'content' => 'This reviewer is using extreme profanity and harrassing people.'
+            'content' => "The author of this guide is a [REDACTED] and shouldn't be teaching!!"
         ]);
 
-        Report::create([
+        \App\Models\Report::create([
             'user_id' => $reporter->id,
-            'reason' => 'Hate speech and harassment.',
-            'status' => 'pending',
-            'reportable_id' => $review->id,
-            'reportable_type' => Review::class,
+            'reason' => 'Hate speech and personal attacks against the author.',
+            'reportable_id' => $badReview->id,
+            'reportable_type' => \App\Models\Review::class,
         ]);
     }
 }

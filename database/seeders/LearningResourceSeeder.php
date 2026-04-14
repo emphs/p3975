@@ -7,48 +7,50 @@ use App\Models\Like;
 use App\Models\Report;
 use App\Models\Review;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class LearningResourceSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Create 5 regular users and 1 admin
-        $users = User::factory(5)->create();
-        $admin = User::factory()->admin()->create([
-            'email' => 'admin@example.com',
-        ]);
+        // Use existing users if they exist (like your 'aa' user), otherwise create new ones
+        $users = User::all();
+        if ($users->isEmpty()) {
+            $users = User::factory(5)->create();
+        }
 
         // Create 10 learning resources
         LearningResource::factory(10)->create()->each(function ($resource) use ($users) {
-            // Create 3 reviews for each resource by random users
-            Review::factory(3)->create([
+
+            // 1. Create 2 reviews for each resource
+            $reviews = Review::factory(2)->create([
                 'learning_resource_id' => $resource->id,
-                'user_id' => fn() => $users->random()->id,
-            ])->each(function ($review) use ($users) {
-                // Create some likes for each review
-                $likers = $users->random(rand(0, 3));
-                foreach ($likers as $liker) {
-                    Like::factory()->create([
-                        'review_id' => $review->id,
-                        'user_id' => $liker->id,
+                'user_id' => $users->random()->id,
+            ]);
+
+            // 2. Randomly report the Resource (Polymorphic)
+            if (rand(1, 3) === 1) {
+                Report::create([
+                    'user_id' => $users->random()->id,
+                    'reason' => 'Inappropriate resource content',
+                    'status' => 'pending',
+                    'reportable_id' => $resource->id,
+                    'reportable_type' => LearningResource::class,
+                ]);
+            }
+
+            // 3. Randomly report a Review (Polymorphic)
+            $reviews->each(function ($review) use ($users) {
+                if (rand(1, 4) === 1) {
+                    Report::create([
+                        'user_id' => $users->random()->id,
+                        'reason' => 'Spammy review',
+                        'status' => 'pending',
+                        'reportable_id' => $review->id,
+                        'reportable_type' => Review::class,
                     ]);
                 }
             });
-
-            // Randomly report some resources or reviews
-            if (rand(1, 4) === 1) {
-                Report::factory()->create([
-                    'user_id' => $users->random()->id,
-                    'learning_resource_id' => $resource->id,
-                    'review_id' => null,
-                    'reason' => 'Inappropriate content',
-                ]);
-            }
         });
     }
 }
