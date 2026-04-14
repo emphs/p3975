@@ -6,13 +6,18 @@ use App\Http\Controllers\LearningResourceController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Api\AuthController;
 
 /* Public Routes (No login required) */
+
+Route::post('/login', [AuthController::class, 'login']);
 Route::get('/resources', [LearningResourceController::class, 'index']);
 Route::get('/resources/{id}', [LearningResourceController::class, 'show']);
 
 /* Protected Routes (Requires Sanctum Authentication Token) */
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/user', function (Request $request) {
         return $request->user();
