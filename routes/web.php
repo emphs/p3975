@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Features;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ModerationController;
+use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Features;
 
 // --- Default Application Routes (Fortify/Inertia) ---
 Route::inertia('/', 'welcome', [
@@ -11,7 +11,8 @@ Route::inertia('/', 'welcome', [
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard'); // Default user dashboard
+    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::inertia('book', 'book-search')->name('book');
 });
 
 // --- Role 3: Admin Web Routes ---
@@ -27,4 +28,4 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
     Route::delete('/reports/{id}', [ModerationController::class, 'destroy'])->name('admin.reports.destroy');
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';
