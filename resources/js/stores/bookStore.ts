@@ -19,23 +19,25 @@ interface BookStore {
     setSearchQuery: (query: string) => void;
     selectedBook: Book | null;
     setSelectedBook: (book: Book | null) => void;
-    comments: Comment[];
-    addComment: (comment: Comment) => void;
+    reviews: Review[];
+    addReview: (review: Review) => void;
 }
 
-export interface Comment {
+export interface Review {
     id: string;
     author: string;
     content: string;
+    rating: number;
     date: string;
     avatar?: string;
 }
 
-const fakeComments: Comment[] = [
+const fakeReviews: Review[] = [
     {
         id: '1',
         author: 'Sarah Chen',
         content: 'This book changed my perspective entirely. Highly recommend for anyone interested in the subject!',
+        rating: 5,
         date: '2024-01-15',
         avatar: 'SC',
     },
@@ -43,6 +45,7 @@ const fakeComments: Comment[] = [
         id: '2',
         author: 'Michael Torres',
         content: 'Great read but the pacing was a bit slow in the middle chapters. Overall worth the time.',
+        rating: 3,
         date: '2024-01-10',
         avatar: 'MT',
     },
@@ -50,6 +53,7 @@ const fakeComments: Comment[] = [
         id: '3',
         author: 'Emily Watson',
         content: 'Absolutely brilliant! The author does an excellent job of breaking down complex concepts.',
+        rating: 4,
         date: '2024-01-05',
         avatar: 'EW',
     },
@@ -60,7 +64,7 @@ export const useBookStore = create<BookStore>((set) => ({
     setSearchQuery: (query) => set({ searchQuery: query }),
     selectedBook: null,
     setSelectedBook: (book) => set({ selectedBook: book }),
-    comments: fakeComments,
-    addComment: (comment) =>
-        set((state) => ({ comments: [comment, ...state.comments] })),
+    reviews: fakeReviews,
+    addReview: (review) =>
+        set((state) => ({ reviews: [review, ...state.reviews] })),
 }));
