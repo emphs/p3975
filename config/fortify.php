@@ -154,4 +154,19 @@ return [
         ]),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect Routes
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define where users should be redirected after specific
+    | actions such as logging in, registering, or resetting passwords.
+    |
+    */
+
+    'redirects' => [
+        'login' => '/book',
+        'register' => '/book',
+    ],
+
 ];
