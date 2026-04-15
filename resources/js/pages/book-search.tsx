@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useBookSearch, useBookDetails, useBookEditions, getCoverUrl } from '@/services/bookService';
 import { useBookStore } from '@/stores/bookStore';
 import type { Comment } from '@/stores/bookStore';
+import { book as bookRoute } from '@/routes';
 
 export default function BookSearch() {
     const { searchQuery, setSearchQuery, selectedBook, setSelectedBook, comments, addComment } = useBookStore();
@@ -485,3 +486,12 @@ export default function BookSearch() {
         </div>
     );
 }
+
+BookSearch.layout = {
+    breadcrumbs: [
+        {
+            title: 'Book Search',
+            href: bookRoute(),
+        },
+    ],
+};

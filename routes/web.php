@@ -11,6 +11,7 @@ Route::inertia('/', 'welcome', [
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::inertia('/', 'book-search')->name('home');
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
     Route::inertia('book', 'book-search')->name('book');
 });
