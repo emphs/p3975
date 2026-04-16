@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateLearningResourceSummary;
+use App\Models\LearningResource;
 use App\Models\Review;
+use App\Services\GitHubModelsReviewSummaryService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -20,7 +23,7 @@ class ReviewController extends Controller
             required: ["learning_resource_id", "rating", "content"],
             properties: [
                 new OA\Property(property: "learning_resource_id", type: "integer", example: 1),
-                new OA\Property(property: "rating", type: "integer", example: 4, description: "Must be between 1 and 5"),
+                new OA\Property(property: "rating", type: "integer", example: 4),
                 new OA\Property(property: "content", type: "string", example: "Great explanation of integrals!")
             ]
         )
@@ -31,14 +34,42 @@ class ReviewController extends Controller
         $validated = $request->validate([
             'learning_resource_id' => 'required|exists:learning_resources,id',
             'rating' => 'required|integer|min:1|max:5',
-            'content' => 'required|string',
+            'content' => 'required|string|max:1000',
         ]);
 
-        // Grabs the authenticated user's ID
         $validated['user_id'] = $request->user()->id;
 
         $review = Review::create($validated);
 
-        return response()->json($review, 201);
+        $resource = LearningResource::find($validated['learning_resource_id']);
+
+        if ($resource && $resource->needsAiSummaryRefresh()) {
+            GenerateLearningResourceSummary::dispatch($resource->id);
+        }
+
+        return response()->json(
+            $review->load('user:id,name'),
+            201
+        );
+    }
+
+    public function previewSummary(Request $request, GitHubModelsReviewSummaryService $summaryService)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'reviews' => 'required|array|min:1|max:10',
+            'reviews.*.author' => 'required|string|max:100',
+            'reviews.*.rating' => 'required|integer|min:1|max:5',
+            'reviews.*.content' => 'required|string|max:1000',
+        ]);
+
+        $summary = $summaryService->summarizePreview(
+            $validated['title'],
+            $validated['reviews']
+        );
+
+        return response()->json([
+            'summary' => $summary['text'],
+        ]);
     }
 }

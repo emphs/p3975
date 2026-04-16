@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+
+    'github_models' => [
+    'endpoint' => env('GITHUB_MODELS_ENDPOINT', 'https://models.github.ai'),
+    'api_version' => env('GITHUB_MODELS_API_VERSION', '2026-03-10'),
+    'token' => env('GITHUB_MODELS_TOKEN'),
+    'model' => env('GITHUB_MODELS_MODEL', 'openai/gpt-4.1'),
+    'temperature' => env('GITHUB_MODELS_TEMPERATURE', 0.2),
+    'max_tokens' => env('GITHUB_MODELS_MAX_TOKENS', 350),
+    'refresh_after_new_reviews' => env('AI_SUMMARY_REFRESH_AFTER_NEW_REVIEWS', 3),
+    'refresh_interval_hours' => env('AI_SUMMARY_REFRESH_INTERVAL_HOURS', 24),
+
+    ],
+
 ];

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 export interface OpenLibraryBook {
     key: string;
@@ -20,7 +20,7 @@ export interface OpenLibrarySearchResponse {
 export interface BookDetails {
     key: string;
     title: string;
-    description?: { value: string };
+    description?: { value: string } | string;
     covers?: number[];
     authors?: { author: { key: string }; type?: { key: string } }[];
     subjects?: string[];
@@ -30,26 +30,59 @@ export interface BookDetails {
     first_sentence?: string[];
     isbn_10?: string[];
     isbn_13?: string[];
-    url?: string;
-    notes?: string;
-    translations?: { title: string }[];
 }
 
-export interface BookEditions {
-    entries: {
-        key: string;
-        title: string;
-        publish_date?: string;
-        publishers?: string[];
-        number_of_pages?: number;
-        covers?: number[];
-    }[];
+export interface PreviewSummaryReview {
+    author: string;
+    content: string;
+    rating: number;
+}
+
+export interface PreviewSummaryPayload {
+    title: string;
+    reviews: PreviewSummaryReview[];
+}
+
+export interface PreviewSummaryResponse {
+    summary: string;
+}
+
+async function parseJsonOrThrow(response: Response) {
+    const contentType = response.headers.get('content-type') ?? '';
+
+    if (contentType.includes('application/json')) {
+        return response.json();
+    }
+
+    const text = await response.text();
+    throw new Error(text || 'Unexpected server response.');
+}
+
+async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
+    const response = await fetch(url, {
+        credentials: 'same-origin',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            ...(init?.headers ?? {}),
+        },
+        ...init,
+    });
+
+    if (!response.ok) {
+        const errorBody = await parseJsonOrThrow(response).catch(() => null);
+        const message = errorBody?.message || `Request failed with status ${response.status}`;
+        throw new Error(message);
+    }
+
+    return parseJsonOrThrow(response) as Promise<T>;
 }
 
 async function searchBooks(query: string): Promise<OpenLibraryBook[]> {
     if (!query.trim()) {
-return [];
-}
+        return [];
+    }
 
     const response = await fetch(
         `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=20`
@@ -61,20 +94,14 @@ return [];
 
 async function getBookDetails(key: string): Promise<BookDetails> {
     const response = await fetch(`https://openlibrary.org${key}.json`);
-
     return response.json();
 }
 
-async function getBookEditions(key: string): Promise<BookEditions> {
-    const response = await fetch(`https://openlibrary.org${key}/editions.json?limit=20`);
-
-    return response.json();
-}
-
-async function getAuthorName(authorKey: string): Promise<{ name: string }> {
-    const response = await fetch(`https://openlibrary.org${authorKey}.json`);
-
-    return response.json();
+async function previewSummary(payload: PreviewSummaryPayload): Promise<PreviewSummaryResponse> {
+    return apiFetch<PreviewSummaryResponse>('/api/reviews/preview-summary', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
 }
 
 export function useBookSearch(query: string) {
@@ -95,28 +122,19 @@ export function useBookDetails(key: string | null) {
     });
 }
 
-export function useBookEditions(key: string | null) {
-    return useQuery({
-        queryKey: ['editions', key],
-        queryFn: () => (key ? getBookEditions(key) : Promise.resolve(null)),
-        enabled: !!key,
-        staleTime: 1000 * 60 * 30,
+export function usePreviewReviewSummary() {
+    return useMutation({
+        mutationFn: previewSummary,
     });
 }
 
-export function useAuthorName(authorKey: string | null) {
-    return useQuery({
-        queryKey: ['author', authorKey],
-        queryFn: () => (authorKey ? getAuthorName(authorKey) : Promise.resolve(null)),
-        enabled: !!authorKey,
-        staleTime: 1000 * 60 * 30,
-    });
-}
-
-export function getCoverUrl(coverId: number | undefined, size: 'S' | 'M' | 'L' = 'M'): string | null {
+export function getCoverUrl(
+    coverId: number | undefined,
+    size: 'S' | 'M' | 'L' = 'M'
+): string | null {
     if (!coverId) {
-return null;
-}
+        return null;
+    }
 
     return `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg`;
 }
