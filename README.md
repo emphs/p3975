@@ -44,6 +44,7 @@ php artisan migrate
 Run this command to create a dummy administrator account so you can access the Filament admin dashboard immediately:
 ```bash
 php artisan tinker --execute="App\Models\User::create(['name' => 'aa', 'email' => 'aa@g.com', 'password' => bcrypt('pwd')])"
+php artisan migrate:fresh --seed
 ```
 
 ---
