@@ -78,5 +78,5 @@ Once both servers are running, you can access the following environments:
     * **Password:** `pwd`
  
 ## Other Important Resources
-* **API Documentation:** `https://deepwiki.com/emphs/p3975/2.1-learning-resources-api`
+* **In Depth API Documentation:** `https://deepwiki.com/emphs/p3975/2.1-learning-resources-api`
 * **Presentation:** `https://docs.google.com/presentation/d/19f7jbq-u17pZVQQzdK5xJf3fZi6vB-J9Ld4sF2X-124/edit?usp=sharing`
